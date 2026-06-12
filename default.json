@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "LukeEvansTech shared Renovate config — home-operations/renovate-presets plus house defaults. Consume it from any repo with: extends: [\"github>LukeEvansTech/renovate-config\"].",
+  "extends": [
+    "github>home-operations/renovate-presets#2.0.0",
+    "docker:pinDigests",
+    ":timezone(Europe/London)"
+  ],
+  "reviewers": ["github-copilot[bot]"],
+  "reviewersSampleSize": 1,
+  "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
+  "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  }
+}

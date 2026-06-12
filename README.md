@@ -44,7 +44,7 @@ updates automerge. Everything else opens a PR to review.
 ## How updates flow
 
 - **This repo → home-operations:** the `home-operations/renovate-presets` pin in
-  `default.json5` is auto-bumped by the self-update `customManager` in
+  `default.json` is auto-bumped by the self-update `customManager` in
   [`.renovaterc.json5`](./.renovaterc.json5). Renovate opens a PR here whenever a
   new release ships.
 - **Consumer repos → this repo:** they extend `github>LukeEvansTech/renovate-config`
