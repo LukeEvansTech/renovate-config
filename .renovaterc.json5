@@ -1,0 +1,25 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+
+  // Dogfood our own shared preset (resolves to default.json5 in this repo).
+  extends: ["local>LukeEvansTech/renovate-config"],
+
+  // Keep the home-operations/renovate-presets pin in default.json5 up to date.
+  // Renovate doesn't track preset `extends` references natively, so this regex
+  // manager treats the pinned tag as a github-releases dependency and raises a
+  // PR whenever a new renovate-presets release ships. This lives only here (the
+  // central repo); consumer repos track this repo's main branch and inherit
+  // updates automatically, so they need no self-update manager of their own.
+  customManagers: [
+    {
+      customType: "regex",
+      managerFilePatterns: ["/^default\\.json5$/"],
+      matchStrings: [
+        "github>home-operations/renovate-presets#(?<currentValue>[^\"']+)",
+      ],
+      depNameTemplate: "home-operations/renovate-presets",
+      datasourceTemplate: "github-releases",
+      versioningTemplate: "semver",
+    },
+  ],
+}
