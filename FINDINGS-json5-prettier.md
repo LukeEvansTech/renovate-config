@@ -1,7 +1,8 @@
 # Findings: `.renovaterc.json5` fails super-linter `JSONC_PRETTIER`
 
 **Date:** 2026-06-18
-**Status:** Confirmed + fixed in `codelooks-com/packer-vsphere` (#72)
+**Status:** Resolved fleet-wide — swept `LukeEvansTech` + `codelooks-com` on
+2026-06-19; all 36 affected repos reformatted and merged (see "Resolution" below).
 **Applies to:** every repo that migrated `renovate.json` → `.renovaterc.json5`
 for fleet consistency and is linted by the shared super-linter workflow
 (`LukeEvansTech/shared-workflows/.github/workflows/super-linter.yml`).
@@ -93,20 +94,32 @@ for repo in $(gh repo list LukeEvansTech --json nameWithOwner --jq '.[].nameWith
 done
 ```
 
-## Known affected / to verify
+## Resolution (fleet-wide sweep, 2026-06-19)
 
-Observed on 2026-06-18 via the GitHub API:
+Swept all 61 repos across `LukeEvansTech` + `codelooks-com`. 43 had a
+`.renovaterc.json5`; 7 already passed Prettier; **36 carried the old
+standard-JSON layout and were reformatted** to json5 style and merged (squash,
+branch deleted). Post-merge `prettier@3 --check` on every `main`: **43/43 pass**.
 
-| Repo | `.renovaterc.json5` style | Verdict |
-|------|---------------------------|---------|
-| `codelooks-com/packer-vsphere` | was standard-JSON | **fixed** (#72) |
-| `LukeEvansTech/talos-cluster` | json5 (unquoted, trailing comma) | OK |
-| `LukeEvansTech/renovate-config` | json5 (unquoted, trailing comma) | OK |
-| `LukeEvansTech/shared-workflows` | **standard-JSON** (quoted keys, no trailing comma) | **likely fails if linted — verify & fix** |
+`shared-workflows` (previously flagged "likely fails — verify & fix") was among
+the 36 — confirmed failing and fixed (#24). The earlier-fixed
+`codelooks-com/packer-vsphere` (#72) and the already-OK `talos-cluster` /
+`renovate-config` were unaffected.
 
-`shared-workflows` carries the old standard-JSON layout in its own
-`.renovaterc.json5`. If that repo runs super-linter over itself it will hit the
-same `JSONC_PRETTIER` failure — confirm and reformat with the one-liner above.
+33 of the 36 merged automatically once their Lint check went green. The other 3
+were green on `JSONC_PRETTIER` (or run no renovate-lint at all) but blocked by a
+**pre-existing, unrelated red check**, then admin-merged on 2026-06-23 after
+confirming the reformat itself was correct:
+
+| Repo | Unrelated blocker (still red on `main`) | Root cause |
+|------|------------------------------------------|------------|
+| `codelooks-com/codelooks-alz` | `markdownlint` | `docs/support-cases/2026-05-26-reply-to-vijay.md:71` — MD056: table row has 2 cells, header declares 4 |
+| `LukeEvansTech/contracthound` | `e2e-test` | `app/admin/logs.py:26` calls `asyncio.get_event_loop()` at import → `RuntimeError` on Python 3.14; app won't boot |
+| `LukeEvansTech/shellyctl` | `test` | `templates.TemplateResponse` → Jinja2 3.1.6 cache-key `TypeError` on Python 3.14 + latest Starlette/FastAPI; all page routes 500 |
+
+These 3 failures predate and are independent of the Renovate config change; the
+common thread is **CI now running on Python 3.14** with latest unpinned deps.
+Tracked separately from this json5/Prettier finding.
 
 ## Prevention
 
