@@ -13,5 +13,55 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"]
-  }
+  },
+  "assignees": ["LukeEvansTech"],
+  "assignAutomerge": false,
+  "rebaseWhen": "conflicted",
+  "packageRules": [
+    {
+      "description": "Auto-merge minor/patch everywhere after a 2-day soak — CI-gated PR merge. platformAutomerge:false means Renovate self-gates on CI and self-merges, so no branch-protection ruleset is needed, and repos with zero CI checks never auto-merge (Renovate requires ignoreTests:true to merge without tests). Majors never match any rule here, so they always stay manual. Repos add their own protected-package denylist (automerge:false, last-match-wins) for anything that must stay human-reviewed.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false,
+      "ignoreTests": false,
+      "minimumReleaseAge": "2 days"
+    },
+    {
+      "description": "Auto-merge digest and pin updates — CI-gated, deliberately NO minimumReleaseAge: mutable-tag digest bumps reset the age clock on every upstream rebuild and GHCR often has no per-digest timestamp, so an age gate leaves digest PRs pending forever (talos-cluster had 11 pending up to 19 days).",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false,
+      "ignoreTests": false
+    },
+    {
+      "description": "GitHub Actions minor/patch/digest merge as a branch (no PR at all when clean; a failure surfaces as a PR). Action refs are SHA-pinned semver via the base preset, and a broken workflow bump shows up on its next run on main.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "automergeType": "branch",
+      "ignoreTests": true,
+      "minimumReleaseAge": "2 days"
+    },
+    {
+      "description": "mise tool bumps minor/patch merge as a branch, same rationale as GitHub Actions above.",
+      "matchManagers": ["mise"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "branch",
+      "ignoreTests": true,
+      "minimumReleaseAge": "2 days"
+    },
+    {
+      "description": "Terraform/Terragrunt-managed deps never auto-merge: in the codelooks-com IaC repos a merge to main auto-applies via CD, so provider/module bumps stay human-reviewed. Actions and mise bumps in those repos still auto-merge via the rules above.",
+      "matchManagers": [
+        "terraform",
+        "terraform-version",
+        "terragrunt",
+        "terragrunt-version"
+      ],
+      "automerge": false
+    }
+  ]
 }
