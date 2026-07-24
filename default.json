@@ -17,6 +17,16 @@
   "assignees": ["LukeEvansTech"],
   "assignAutomerge": false,
   "rebaseWhen": "conflicted",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the doco-cd GitOps controller pinned inside Butane (.bu) provisioning files. On the FCOS boxes (seedbox, cr-nut) the doco-cd container that actually runs is launched by a systemd docker-run unit written in the .bu, NOT by any compose file Renovate reads — so without this the controller version silently drifts. Renovate has no native Butane manager, so extract the image tag by regex and resolve it as a docker dependency (digest pinned via docker:pinDigests like everything else).",
+      "fileMatch": ["\\.bu$"],
+      "matchStrings": ["ghcr\\.io/kimdre/doco-cd:(?<currentValue>[^\\s@\"']+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/kimdre/doco-cd"
+    }
+  ],
   "packageRules": [
     {
       "description": "Auto-merge minor/patch everywhere after a 2-day soak — CI-gated PR merge. platformAutomerge:false means Renovate self-gates on CI and self-merges, so no branch-protection ruleset is needed, and repos with zero CI checks never auto-merge (Renovate requires ignoreTests:true to merge without tests). Majors never match any rule here, so they always stay manual. Repos add their own protected-package denylist (automerge:false, last-match-wins) for anything that must stay human-reviewed.",
@@ -62,6 +72,13 @@
         "terragrunt-version"
       ],
       "automerge": false
+    },
+    {
+      "description": "doco-cd is the GitOps controller that deploys every stack — a bad bump breaks the deployer itself and can't self-heal, and its authoritative pin usually lives in a Butane (.bu) unit that only takes effect on a box re-provision. Never auto-merge it (overrides the container rules above, last-match-wins) and group every doco-cd update — the bootstrap compose and the .bu pin — into a single manual PR so both files move together.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/doco-cd/"],
+      "automerge": false,
+      "groupName": "doco-cd"
     }
   ]
 }
