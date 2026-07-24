@@ -1,0 +1,7 @@
+# Super-Linter reads this at .github/linters/.codespellrc.
+[codespell]
+skip = ./.git
+# Domain terms codespell misreads as typos:
+#   bu - the Butane file extension (.bu), referenced throughout default.json's
+#        doco-cd customManager + guard; read as a misspelling of "by"/"be"
+ignore-words-list = bu
