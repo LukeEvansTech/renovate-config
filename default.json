@@ -55,6 +55,13 @@
       "minimumReleaseAge": "2 days"
     },
     {
+      "description": "Never pin the codelooks-com/terraform-workflows reusable workflows that are tracked on @main. The two Azure Terraform repos (terraform-azure-platform, terraform-azure-workloads) reference standard-ci/-cd/-drift at @main on purpose: their GitHub OIDC subject includes job_workflow_ref, so the Azure federated credentials only trust a token whose sub ends in .../standard-*.yaml@refs/heads/main. SHA-pinning the ref rewrites that claim to @<sha>, no federated credential matches, and every plan/apply/drift run fails auth with AADSTS700213 (already reverted once in terraform-azure-workloads #18). Scoped to currentValue main so the other repos that pin standard-* to a @<sha> # vX.Y.Z tag keep their normal version-bump flow.",
+      "matchManagers": ["github-actions"],
+      "matchDepNames": ["codelooks-com/terraform-workflows"],
+      "matchCurrentValue": "main",
+      "pinDigests": false
+    },
+    {
       "description": "mise tool bumps minor/patch merge as a branch, same rationale as GitHub Actions above.",
       "matchManagers": ["mise"],
       "matchUpdateTypes": ["minor", "patch"],
