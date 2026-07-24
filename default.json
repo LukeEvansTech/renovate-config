@@ -76,8 +76,8 @@
       "groupName": "doco-cd"
     },
     {
-      "description": "Butane (.bu) provisioning files track image versions only — never append a digest. docker:pinDigests would rewrite the systemd docker-run line to tag@sha256:… and Renovate's customManager digest-pin step fails on it ('Error updating branch: update failure'); a re-provision resolves the tag and the compose copy already carries the digest, so version-only here is both sufficient and what actually works. Same spirit as the Flux OCIRepository pinDigests:false carve-out.",
-      "matchFileNames": ["**/*.bu"],
+      "description": "The Butane (.bu) doco-cd customManager tracks image versions only — never append a digest. docker:pinDigests would rewrite the systemd docker-run line to tag@sha256:… and the customManager digest-pin step fails on it ('Error updating branch: update failure'); a re-provision resolves the tag and the compose copy already carries the digest, so version-only here is both sufficient and what actually works. Scoped to matchManagers custom.regex (the only regex customManager is the .bu one) — the same manager-scoped approach as the Flux OCIRepository pinDigests:false carve-out; matchFileNames does not scope customManager-extracted deps.",
+      "matchManagers": ["custom.regex"],
       "pinDigests": false
     }
   ]
