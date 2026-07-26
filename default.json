@@ -30,6 +30,40 @@
   ],
   "packageRules": [
     {
+      "description": "Semantic update-type labels. Consumers key automation off these: the renovate-review.yaml breaking-change gate ungates type/digest and renovate/github-action so low-blast-radius bumps skip the (paid) AI review entirely. Before this existed only talos-cluster declared them locally, so the same workflow copied into nut-apps/seedbox-apps silently gated EVERY PR — the ungate branch was unreachable and every action bump ran a full Opus review. addLabels (not labels) is deliberate: it is additive, so the house `dependencies` label and vulnerabilityAlerts' `security` label survive alongside these.",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["type/major"]
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "addLabels": ["type/minor"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "addLabels": ["type/patch"]
+    },
+    {
+      "description": "pin/pinDigest are included alongside digest — they are equally low-blast-radius and the digest automerge rule below already treats all three alike, so the review gate should ungate them all.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "addLabels": ["type/digest"]
+    },
+    {
+      "matchDatasources": ["docker"],
+      "addLabels": ["renovate/container"]
+    },
+    {
+      "matchDatasources": ["helm"],
+      "addLabels": ["renovate/helm"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["renovate/github-action"]
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "addLabels": ["renovate/github-release"]
+    },
+    {
       "description": "Auto-merge minor/patch everywhere after a 2-day soak — CI-gated PR merge. platformAutomerge:false means Renovate self-gates on CI and self-merges, so no branch-protection ruleset is needed, and repos with zero CI checks never auto-merge (Renovate requires ignoreTests:true to merge without tests). github-actions and mise bumps land here too: they are deliberately NOT branch-merged, because every managed repo's baseline-main-protection ruleset has a pull_request rule that blocks direct pushes to main, so automergeType:branch fails with 'Unknown error when attempting branch automerge'. Majors never match any rule here, so they always stay manual. Repos add their own protected-package denylist (automerge:false, last-match-wins) for anything that must stay human-reviewed.",
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
