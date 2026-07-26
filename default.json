@@ -12,7 +12,8 @@
   "labels": ["dependencies"],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": ["security"],
+    "dependencyDashboardApproval": false
   },
   "assignees": ["LukeEvansTech"],
   "assignAutomerge": false,
@@ -50,6 +51,11 @@
       "automergeType": "pr",
       "platformAutomerge": false,
       "ignoreTests": false
+    },
+    {
+      "description": "Majors stay 100% manual AND no longer open a PR: they queue behind a checkbox on each repo's Dependency Dashboard under 'Pending Approval'. Majors never matched any automerge rule, so assignAutomerge:false always assigned them — 146 open major PRs across the estate were the single largest source of notification email, and each also re-ran CI on every rebase. Ticking the dashboard box creates the PR on the next run, so nothing is lost and the backlog stays visible in one place per repo. Security majors are exempt: vulnerabilityAlerts sets dependencyDashboardApproval:false so vulnerability-driven updates still raise a PR immediately.",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Never pin the codelooks-com/terraform-workflows reusable workflows that are tracked on @main. The two Azure Terraform repos (terraform-azure-platform, terraform-azure-workloads) reference standard-ci/-cd/-drift at @main on purpose: their GitHub OIDC subject includes job_workflow_ref, so the Azure federated credentials only trust a token whose sub ends in .../standard-*.yaml@refs/heads/main. SHA-pinning the ref rewrites that claim to @<sha>, no federated credential matches, and every plan/apply/drift run fails auth with AADSTS700213 (already reverted once in terraform-azure-workloads #18). Scoped to currentValue main so the other repos that pin standard-* to a @<sha> # vX.Y.Z tag keep their normal version-bump flow.",
