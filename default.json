@@ -99,6 +99,12 @@
       "pinDigests": false
     },
     {
+      "description": "Never digest-pin docker images referenced inside GitHub Actions workflows. In this estate such an image is the repo's OWN build target: its name lives in a workflow env (IMAGE: ghcr.io/<org>/<repo>) and is composed into the push tags as ${IMAGE}:${version}. docker:pinDigests appends @sha256:… to it, turning the push reference into an invalid 'repo@sha256:…:tag' that buildx rejects — breaking every release build. This bit todoist-sort (build.yml, via #14) and was pre-empted per-repo in packer-vsphere; centralising it here lets both drop their local enabled:false workaround and protects future repos. Only docker-datasource deps in workflows are affected: GitHub Action SHA pinning is a separate mechanism (helpers:pinGitHubActionDigests) and is untouched, and Dockerfile/compose/k8s FROM lines are still digest-pinned by their own managers. Scoped by manager+datasource because the github-actions manager is the only one that reads .github/workflows/*.yml.",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["docker"],
+      "pinDigests": false
+    },
+    {
       "description": "Terraform/Terragrunt-managed deps never auto-merge: in the codelooks-com IaC repos a merge to main auto-applies via CD, so provider/module bumps stay human-reviewed. Actions and mise bumps in those repos still auto-merge via the rules above.",
       "matchManagers": [
         "terraform",
