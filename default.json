@@ -125,6 +125,12 @@
       "description": "The Butane (.bu) doco-cd customManager tracks image versions only — never append a digest. docker:pinDigests would rewrite the systemd docker-run line to tag@sha256:… and the customManager digest-pin step fails on it ('Error updating branch: update failure'); a re-provision resolves the tag and the compose copy already carries the digest, so version-only here is both sufficient and what actually works. Scoped to matchManagers custom.regex (the only regex customManager is the .bu one) — the same manager-scoped approach as the Flux OCIRepository pinDigests:false carve-out; matchFileNames does not scope customManager-extracted deps.",
       "matchManagers": ["custom.regex"],
       "pinDigests": false
+    },
+    {
+      "description": "mise's `1password-cli` resolves to the github-tags datasource on `1password/cli`, but no such GitHub repository exists (404) — 1Password ships the CLI from its own update service, not GitHub. The lookup can therefore never succeed: it fails on every run and Mend raises a permanent 'Package lookup failures' repository problem. Seen on codelooks-alz and stwt-m365-consolidation (2026-08-17), which is why this lives in the preset rather than per-repo. Disables only this dependency, not the mise manager — every other tool (azure-cli, bicep, github-cli, jq, yq, python, node) resolves fine and keeps updating. The 1password-cli pin is bumped by hand until Renovate/mise map it to a resolvable datasource.",
+      "matchManagers": ["mise"],
+      "matchDepNames": ["1password-cli"],
+      "enabled": false
     }
   ]
 }
