@@ -17,6 +17,8 @@
   },
   "assignees": ["LukeEvansTech"],
   "assignAutomerge": false,
+  "automergeType": "pr",
+  "platformAutomerge": false,
   "rebaseWhen": "conflicted",
   "customManagers": [
     {
