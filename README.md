@@ -91,6 +91,14 @@ need to be a required check. In a repository without that status nothing holds a
 changing plan, so extend the preset there only after you have seen CI post the
 status on a real pull request.
 
+The preset also sets `rebaseWhen: "behind-base-branch"` for these updates,
+overriding the base preset's `conflicted`. A `success` status only says the plan
+was a no-op against the `main` it ran on. If `main` moves and the branch still
+merges cleanly, `conflicted` would leave the PR on its old base, and Renovate
+could merge it on a stale status, so CD would apply a combination nobody
+planned. Rebasing whenever the branch falls behind forces a fresh plan against
+the current `main` before the merge.
+
 Put it after the base preset and before any local denylist, so the denylist
 still wins:
 
