@@ -6,6 +6,7 @@
     "docker:pinDigests",
     ":timezone(Europe/London)"
   ],
+  "postUpdateOptions": ["gomodTidy"],
   "reviewers": ["github-copilot[bot]"],
   "reviewersSampleSize": 1,
   "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
