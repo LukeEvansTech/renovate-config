@@ -41,8 +41,8 @@ House additions on top:
 **Automerge is broad, and gated on CI.** Every `minor`, `patch`, `digest` and
 `pin` auto-merges once checks are green, as a CI-gated PR merge
 (`automergeType: "pr"`, `platformAutomerge: false`, `ignoreTests: false`).
-`major` updates never match an automerge rule and additionally queue behind a
-checkbox on each repo's Dependency Dashboard, so they stay fully manual.
+`major` updates never match an automerge rule, so their PRs open as normal
+but always wait for a manual merge.
 
 Because `platformAutomerge` is `false`, Renovate self-gates on CI and
 self-merges — no branch-protection ruleset is required, and a repo with no CI
