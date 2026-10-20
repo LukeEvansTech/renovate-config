@@ -3,7 +3,7 @@
   "description": "Opt-in: let Renovate auto-merge Terraform/Terragrunt minor, patch, digest, pin and lock file updates when the plan is a no-op. Safe ONLY in a repository whose CI posts a terraform/plan-noop commit status on every pull request that changes Terraform (success for a plan with no changes, pending otherwise). With platformAutomerge false, Renovate merges only once every status is green, so a pending plan holds the PR for a person. A repository without that status has nothing holding a plan that changes infrastructure. Extend it after the base preset and before any local protected denylist, so the denylist still wins: extends: [\"github>LukeEvansTech/renovate-config\", \"github>LukeEvansTech/renovate-config:terraform-plan-gated\"].",
   "packageRules": [
     {
-      "description": "Plan-gated Terraform automerge. Overrides the base preset's automerge:false for these managers (last-match-wins). Majors stay manual: they never match here.",
+      "description": "Plan-gated Terraform automerge. Overrides the base preset's automerge:false for these managers (last-match-wins). Majors stay manual: they never match here. rebaseWhen overrides the base preset's conflicted: a terraform/plan-noop success holds only for the main it was planned against, so once main moves Renovate rebases the branch and CI plans again before it may merge. Without it, a no-op status from an older base could merge after main moved, and CD would apply a combination nobody planned.",
       "matchManagers": [
         "terraform",
         "terraform-version",
@@ -21,7 +21,8 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false,
-      "ignoreTests": false
+      "ignoreTests": false,
+      "rebaseWhen": "behind-base-branch"
     }
   ]
 }
