@@ -74,6 +74,39 @@ repository names only what must stay human-reviewed.
 That is the whole per-repo config, plus anything genuinely local: custom
 datasources, custom managers, groups, labels, `ignorePaths`.
 
+## Opt-in: plan-gated Terraform automerge
+
+The base preset never auto-merges `terraform`, `terraform-version`, `terragrunt`
+or `terragrunt-version` updates, because in an infrastructure repository a merge
+to `main` applies. The `terraform-plan-gated` preset turns automerge back on for
+their `minor`, `patch`, `digest`, `pin`, `pinDigest` and `lockFileMaintenance`
+updates (never `major`), as the same CI-gated PR merge as everything else.
+
+It is safe **only** where CI posts a `terraform/plan-noop` commit status on
+every pull request that changes Terraform: `success` when the plan has no
+changes, `pending` for anything else. With `platformAutomerge: false`, Renovate
+merges only once every status is green, so a plan that changes infrastructure
+holds the PR open for a person to read and merge by hand. The status does not
+need to be a required check. In a repository without that status nothing holds a
+changing plan, so extend the preset there only after you have seen CI post the
+status on a real pull request.
+
+Put it after the base preset and before any local denylist, so the denylist
+still wins:
+
+```json5
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "github>LukeEvansTech/renovate-config",
+    "github>LukeEvansTech/renovate-config:terraform-plan-gated",
+  ],
+  packageRules: [
+    // local protected denylist (automerge: false) goes here, last
+  ],
+}
+```
+
 ## The one rule: never re-state a preset setting
 
 `packageRules` are **last-match-wins**, and preset rules are evaluated **first**.

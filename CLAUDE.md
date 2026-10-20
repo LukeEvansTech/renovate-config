@@ -8,6 +8,7 @@ Status: active (last commit 2026-06-23).
 
 - `.renovaterc.json5` — the config itself: layers house defaults on top of the `home-operations/renovate-presets` bundle.
 - `default.json` — the default preset consumer repos extend; pins the `home-operations/renovate-presets` version, auto-bumped by a self-update customManager.
+- `terraform-plan-gated.json` — opt-in preset: Terraform/Terragrunt automerge, safe only where CI posts a `terraform/plan-noop` status.
 - `README.md` — usage instructions for consumer repos and how updates flow both directions (this repo ↔ home-operations upstream, this repo ↔ consumer repos).
 - `FINDINGS-json5-prettier.md` — investigation notes on a JSON5/prettier/super-linter CI failure across the repo fleet, and its resolution.
 
