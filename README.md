@@ -79,7 +79,7 @@ datasources, custom managers, groups, labels, `ignorePaths`.
 `packageRules` are **last-match-wins**, and preset rules are evaluated **first**.
 So restating a setting locally silently overrides the shared decision — no error,
 no warning, and nothing in a diff to notice. Adding `automerge: false` for your
-own packages is correct; re-declaring _how_ auto-merge works is not.
+own packages is correct; redeclaring _how_ auto-merge works is not.
 
 Both production incidents in `LukeEvansTech/talos-cluster` were this mistake:
 
