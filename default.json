@@ -26,7 +26,9 @@
       "customType": "regex",
       "description": "Track the doco-cd GitOps controller pinned inside Butane (.bu) provisioning files. On the FCOS boxes (seedbox, cr-nut) the doco-cd container that actually runs is launched by a systemd docker-run unit written in the .bu, NOT by any compose file Renovate reads — so without this the controller version silently drifts. Renovate has no native Butane manager, so extract the image tag by regex and resolve it as a docker dependency (digest pinned via docker:pinDigests like everything else).",
       "fileMatch": ["\\.bu$"],
-      "matchStrings": ["ghcr\\.io/kimdre/doco-cd:(?<currentValue>[^\\s@\"']+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "matchStrings": [
+        "ghcr\\.io/kimdre/doco-cd:(?<currentValue>[^\\s@\"']+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
+      ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/kimdre/doco-cd"
     }
@@ -90,11 +92,6 @@
       "ignoreTests": false
     },
     {
-      "description": "Majors stay 100% manual AND no longer open a PR: they queue behind a checkbox on each repo's Dependency Dashboard under 'Pending Approval'. Majors never matched any automerge rule, so assignAutomerge:false always assigned them — 146 open major PRs across the estate were the single largest source of notification email, and each also re-ran CI on every rebase. Ticking the dashboard box creates the PR on the next run, so nothing is lost and the backlog stays visible in one place per repo. Security majors are exempt: vulnerabilityAlerts sets dependencyDashboardApproval:false so vulnerability-driven updates still raise a PR immediately.",
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
-    },
-    {
       "description": "Never pin the codelooks-com/terraform-workflows reusable workflows that are tracked on @main. The two Azure Terraform repos (terraform-azure-platform, terraform-azure-workloads) reference standard-ci/-cd/-drift at @main on purpose: their GitHub OIDC subject includes job_workflow_ref, so the Azure federated credentials only trust a token whose sub ends in .../standard-*.yaml@refs/heads/main. SHA-pinning the ref rewrites that claim to @<sha>, no federated credential matches, and every plan/apply/drift run fails auth with AADSTS700213 (already reverted once in terraform-azure-workloads #18). Scoped to currentValue main so the other repos that pin standard-* to a @<sha> # vX.Y.Z tag keep their normal version-bump flow.",
       "matchManagers": ["github-actions"],
       "matchDepNames": ["codelooks-com/terraform-workflows"],
@@ -102,7 +99,7 @@
       "pinDigests": false
     },
     {
-      "description": "Never digest-pin docker images referenced inside GitHub Actions workflows. In this estate such an image is the repo's OWN build target: its name lives in a workflow env (IMAGE: ghcr.io/<org>/<repo>) and is composed into the push tags as ${IMAGE}:${version}. docker:pinDigests appends @sha256:… to it, turning the push reference into an invalid 'repo@sha256:…:tag' that buildx rejects — breaking every release build. This bit todoist-sort (build.yml, via #14) and was pre-empted per-repo in packer-vsphere; centralising it here lets both drop their local enabled:false workaround and protects future repos. Only docker-datasource deps in workflows are affected: GitHub Action SHA pinning is a separate mechanism (helpers:pinGitHubActionDigests) and is untouched, and Dockerfile/compose/k8s FROM lines are still digest-pinned by their own managers. Scoped by manager+datasource because the github-actions manager is the only one that reads .github/workflows/*.yml.",
+      "description": "Never digest-pin docker images referenced inside GitHub Actions workflows. In this estate such an image is the repo's OWN build target: its name lives in a workflow env (IMAGE: ghcr.io/<org>/<repo>) and is composed into the push tags as ${IMAGE}:${version}. docker:pinDigests appends @sha256:… to it, turning the push reference into an invalid 'repo@sha256:…:tag' that buildx rejects — breaking every release build. This bit todoist-sort (build.yml, via #14) and was preempted per-repo in packer-vsphere; centralising it here lets both drop their local enabled:false workaround and protects future repos. Only docker-datasource deps in workflows are affected: GitHub Action SHA pinning is a separate mechanism (helpers:pinGitHubActionDigests) and is untouched, and Dockerfile/compose/k8s FROM lines are still digest-pinned by their own managers. Scoped by manager+datasource because the github-actions manager is the only one that reads .github/workflows/*.yml.",
       "matchManagers": ["github-actions"],
       "matchDatasources": ["docker"],
       "pinDigests": false
