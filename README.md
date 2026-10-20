@@ -1,12 +1,12 @@
 # renovate-config
 
 My shared [Renovate](https://docs.renovatebot.com) configuration. One place to
-define house defaults so every repo behaves consistently and improvements roll
+define house defaults so every repository behaves consistently and improvements roll
 out automatically.
 
 ## Usage
 
-In any repo, create `.renovaterc.json5` (or `renovate.json`) with:
+In any repository, create `.renovaterc.json5` (or `renovate.json`) with:
 
 ```json5
 {
@@ -25,7 +25,7 @@ It layers house defaults on top of the
 bundle. From that base you get:
 
 - `config:recommended`, `docker:enableMajor`
-- GitHub Action digests pinned to semver (`helpers:pinGitHubActionDigestsToSemver`)
+- GitHub Action digests pinned to SemVer (`helpers:pinGitHubActionDigestsToSemver`)
 - Branch-based automerge, dependency dashboard, no rate limiting
 - The `# renovate:` annotated manager plus OCI / CNPG / Talos / Grafana custom managers
 - A semantic-commit policy and registry aliases
@@ -41,17 +41,17 @@ House additions on top:
 **Automerge is broad, and gated on CI.** Every `minor`, `patch`, `digest` and
 `pin` auto-merges once checks are green, as a CI-gated PR merge
 (`automergeType: "pr"`, `platformAutomerge: false`, `ignoreTests: false`).
-`major` updates never match an automerge rule and additionally queue behind a
-checkbox on each repo's Dependency Dashboard, so they stay fully manual.
+`major` updates never match an automerge rule, so their PRs open as normal
+but always wait for a manual merge.
 
 Because `platformAutomerge` is `false`, Renovate self-gates on CI and
-self-merges — no branch-protection ruleset is required, and a repo with no CI
+self-merges — no branch-protection ruleset is required, and a repository with no CI
 checks at all never auto-merges.
 
-## Rolling this out to a new repo
+## Rolling this out to a new repository
 
 The model is a **denylist**: the preset auto-merges everything on green, and each
-repo names only what must stay human-reviewed.
+repository names only what must stay human-reviewed.
 
 ```json5
 {
@@ -79,13 +79,13 @@ datasources, custom managers, groups, labels, `ignorePaths`.
 `packageRules` are **last-match-wins**, and preset rules are evaluated **first**.
 So restating a setting locally silently overrides the shared decision — no error,
 no warning, and nothing in a diff to notice. Adding `automerge: false` for your
-own packages is correct; re-declaring _how_ auto-merge works is not.
+own packages is correct; redeclaring _how_ auto-merge works is not.
 
 Both production incidents in `LukeEvansTech/talos-cluster` were this mistake:
 
 | Local restatement                               | What it reverted                 | Result                                                                                                                                                            |
 | ----------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `minimumReleaseAge: "2 days"` on a docker rule  | the preset's docker soak opt-out | GHCR publishes no release timestamp, so the gate never turned green. **38 of 39 open PRs stuck**, one for five days against a two-day gate ([talos-cluster#3866]) |
+| `minimumReleaseAge: "2 days"` on a Docker rule  | the preset's Docker soak opt-out | GHCR publishes no release timestamp, so the gate never turned green. **38 of 39 open PRs stuck**, one for five days against a two-day gate ([talos-cluster#3866]) |
 | `automergeType: "branch"` + `ignoreTests: true` | the preset's CI-gated PR merge   | branch-merge bypasses the PR, so `claude/renovate-review` posted its verdict **76–93s after** the commit was already on `main` ([talos-cluster#3871])             |
 
 Both looked healthy from the outside. The first kept merging digest and Docker
@@ -93,7 +93,7 @@ Hub bumps, which have a working timestamp, so only GHCR versioned bumps stalled.
 The second ran the review on every PR and passed it every time — it just could
 never block anything.
 
-If house behaviour needs to change, **change it here**. Every repo picks it up.
+If house behaviour needs to change, **change it here**. Every repository picks it up.
 
 ### Two traps worth knowing
 
@@ -111,9 +111,9 @@ If house behaviour needs to change, **change it here**. Every repo picks it up.
 
 ## How updates flow
 
-- **This repo → home-operations:** the `home-operations/renovate-presets` pin in
+- **This repository → home-operations:** the `home-operations/renovate-presets` pin in
   `default.json` is auto-bumped by the self-update `customManager` in
   [`.renovaterc.json5`](./.renovaterc.json5). Renovate opens a PR here whenever a
   new release ships.
-- **Consumer repos → this repo:** they extend `github>LukeEvansTech/renovate-config`
+- **Consumer repositories → this repository:** they extend `github>LukeEvansTech/renovate-config`
   (tracking `main`), so they pick up changes here automatically with nothing to bump.
